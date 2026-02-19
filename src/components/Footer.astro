@@ -11,7 +11,7 @@ const year = new Date().getFullYear();
   </div>
   <div class="container footer-content">
     <div class="footer-bottom">
-      <p>&copy; {year} Filosofisk Forum. Alle rettigheder forbeholdes.</p>
+      <p>&copy; {year} Filosofisk Forum. Alle rettigheder forbeholdes. <a href="/privatlivspolitik" class="footer-link">Privatlivspolitik</a></p>
     </div>
   </div>
 </footer>
@@ -39,6 +39,15 @@ const year = new Date().getFullYear();
   .footer-bottom p {
     font-size: var(--text-sm);
     color: var(--color-text-muted);
+  }
+
+  .footer-link {
+    color: var(--color-text-muted);
+    margin-left: 0.5rem;
+  }
+
+  .footer-link:hover {
+    color: var(--color-accent);
   }
 
   @media (max-width: 768px) {

@@ -14,8 +14,8 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    const subscriber = addSubscriber(email);
-    return new Response(JSON.stringify({ success: true, subscriber }), {
+    addSubscriber(email);
+    return new Response(JSON.stringify({ success: true }), {
       status: 201,
       headers: { 'Content-Type': 'application/json' },
     });

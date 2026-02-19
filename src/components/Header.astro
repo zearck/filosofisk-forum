@@ -1,6 +1,5 @@
 ---
 const navItems = [
-  { href: '/', label: 'Forside' },
   { href: '/om', label: 'Om os' },
   { href: '/program', label: 'Program' },
   { href: '/arkiv', label: 'Arkiv' },
@@ -13,7 +12,7 @@ const currentPath = Astro.url.pathname;
 ---
 
 <header class="site-header">
-  <div class="header-inner container--wide">
+  <div class="header-inner">
     <a href="/" class="logo" aria-label="Filosofisk Forum - Forside">
       <img src="/images/platon.png" alt="" class="logo-icon" aria-hidden="true" width="40" height="40" />
       <span class="logo-text">Filosofisk Forum</span>
@@ -43,6 +42,18 @@ const currentPath = Astro.url.pathname;
         ))}
       </ul>
     </nav>
+
+    <a
+      href="https://www.facebook.com/groups/155537601124000/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="facebook-link"
+      aria-label="Filosofisk Forum på Facebook"
+    >
+      <svg class="facebook-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="22" height="22">
+        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+      </svg>
+    </a>
   </div>
 </header>
 
@@ -82,8 +93,9 @@ const currentPath = Astro.url.pathname;
   .header-inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     width: 100%;
+    padding: 0 var(--space-md);
+    position: relative;
   }
 
   .logo {
@@ -93,6 +105,8 @@ const currentPath = Astro.url.pathname;
     text-decoration: none;
     color: var(--color-text);
     flex-shrink: 0;
+    margin-left: 16rem;
+    z-index: 1;
   }
 
   .logo:hover, .logo:focus {
@@ -108,9 +122,17 @@ const currentPath = Astro.url.pathname;
 
   .logo-text {
     font-family: var(--font-serif);
-    font-size: 1.25rem;
+    font-size: 1.45rem;
     font-weight: 600;
     letter-spacing: 0.01em;
+  }
+
+  .main-nav {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
   }
 
   .nav-list {
@@ -140,6 +162,21 @@ const currentPath = Astro.url.pathname;
   .nav-link.active {
     color: var(--color-accent);
     font-weight: 550;
+  }
+
+  .facebook-link {
+    margin-left: auto;
+    margin-right: 26rem;
+    color: var(--color-text-muted);
+    transition: color 0.2s ease;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  .facebook-link:hover,
+  .facebook-link:focus {
+    color: #1877F2;
   }
 
   /* Hamburger */
@@ -226,6 +263,10 @@ const currentPath = Astro.url.pathname;
 
     .nav-link:last-child {
       border-bottom: none;
+    }
+
+    .facebook-link {
+      margin-right: 0;
     }
   }
 </style>
