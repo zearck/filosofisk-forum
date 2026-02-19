@@ -1,0 +1,519 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { isAuthenticated } from '../../lib/auth';
+
+const authenticated = isAuthenticated(Astro.request);
+---
+
+<BaseLayout title="Admin">
+  <section class="section">
+    <div class="container--wide admin-container">
+      <h1>Administration</h1>
+
+      {!authenticated ? (
+        <div class="card admin-login">
+          <h2>Log ind</h2>
+          <form id="login-form">
+            <label for="admin-password">Adgangskode</label>
+            <input type="password" id="admin-password" name="password" required class="form-input" />
+            <button type="submit" class="btn btn--primary mt-sm">Log ind</button>
+            <div class="admin-message" id="login-message" aria-live="polite"></div>
+          </form>
+        </div>
+      ) : (
+        <div class="admin-panel">
+          <nav class="admin-tabs" role="tablist">
+            <button class="admin-tab active" role="tab" aria-selected="true" data-tab="subscribers">Tilmeldte</button>
+            <button class="admin-tab disabled" role="tab" aria-selected="false" data-tab="compose" disabled>Skriv email</button>
+            <button class="admin-tab disabled" role="tab" aria-selected="false" data-tab="drafts" disabled>Kladder</button>
+          </nav>
+
+          <div class="admin-tab-content active" id="tab-subscribers">
+            <div class="admin-toolbar">
+              <span id="subscriber-count" class="text-muted"></span>
+              <div class="admin-toolbar-actions">
+                <button id="copy-emails-btn" class="btn btn--outline btn--sm" title="Kopier alle emails til udklipsholder">Kopier alle emails</button>
+                <button id="export-csv-btn" class="btn btn--outline btn--sm" title="Download som CSV-fil">Eksporter CSV</button>
+              </div>
+            </div>
+            <div id="subscriber-list" class="admin-table-wrap">
+              <p class="text-muted">Indlæser...</p>
+            </div>
+            <div id="copy-message" class="admin-message" aria-live="polite"></div>
+          </div>
+
+          <div class="admin-tab-content" id="tab-compose">
+            <p class="text-muted">Denne funktion er ikke tilgængelig endnu. Brug "Kopier alle emails" til at eksportere mailinglisten.</p>
+          </div>
+
+          <div class="admin-tab-content" id="tab-drafts">
+            <p class="text-muted">Denne funktion er ikke tilgængelig endnu.</p>
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // --- Login ---
+  const loginForm = document.getElementById('login-form') as HTMLFormElement | null;
+  const loginMessage = document.getElementById('login-message');
+
+  if (loginForm && loginMessage) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginMessage.textContent = '';
+      loginMessage.className = 'admin-message';
+
+      const password = (loginForm.querySelector('[name="password"]') as HTMLInputElement).value;
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          loginMessage.textContent = data.error || 'Forkert adgangskode.';
+          loginMessage.classList.add('admin-message--error');
+        }
+      } catch {
+        loginMessage.textContent = 'Kunne ikke oprette forbindelse.';
+        loginMessage.classList.add('admin-message--error');
+      }
+    });
+  }
+
+  // --- Admin panel (only runs if authenticated) ---
+  const adminPanel = document.querySelector('.admin-panel');
+  if (adminPanel) {
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.admin-tab');
+  const contents = document.querySelectorAll<HTMLElement>('.admin-tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+      contents.forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      document.getElementById(`tab-${tab.dataset.tab}`)?.classList.add('active');
+    });
+  });
+
+  // --- Subscribers ---
+  const subscriberList = document.getElementById('subscriber-list')!;
+  const subscriberCount = document.getElementById('subscriber-count')!;
+  const copyBtn = document.getElementById('copy-emails-btn')!;
+  const exportBtn = document.getElementById('export-csv-btn')!;
+  const copyMessage = document.getElementById('copy-message')!;
+  let currentSubscribers: any[] = [];
+
+  async function loadSubscribers() {
+    try {
+      const res = await fetch('/api/admin/subscribers');
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      currentSubscribers = data.subscribers;
+      subscriberCount.textContent = `${currentSubscribers.length} tilmeldte`;
+
+      if (currentSubscribers.length === 0) {
+        subscriberList.innerHTML = '<p class="text-muted">Ingen tilmeldte endnu.</p>';
+        return;
+      }
+
+      subscriberList.innerHTML = `
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>E-mail</th>
+              <th>Tilmeldt</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${currentSubscribers.map((s: any) => `
+              <tr>
+                <td>${escapeHtml(s.email)}</td>
+                <td>${new Date(s.subscribed_at).toLocaleDateString('da-DK')}</td>
+                <td><button class="btn-delete" data-id="${s.id}" title="Slet">&times;</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+
+      subscriberList.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = (btn as HTMLElement).dataset.id;
+          if (!confirm('Er du sikker på at du vil fjerne denne tilmelding?')) return;
+          await fetch('/api/admin/subscribers', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: Number(id) }),
+          });
+          loadSubscribers();
+        });
+      });
+    } catch {
+      subscriberList.innerHTML = '<p class="admin-message--error">Kunne ikke indlæse tilmeldte.</p>';
+    }
+  }
+
+  copyBtn.addEventListener('click', () => {
+    if (currentSubscribers.length === 0) return;
+    const emails = currentSubscribers.map((s: any) => s.email).join(', ');
+    navigator.clipboard.writeText(emails).then(() => {
+      copyMessage.textContent = `${currentSubscribers.length} emails kopieret til udklipsholder!`;
+      copyMessage.className = 'admin-message admin-message--success';
+      setTimeout(() => { copyMessage.textContent = ''; }, 3000);
+    });
+  });
+
+  exportBtn.addEventListener('click', () => {
+    if (currentSubscribers.length === 0) return;
+    const header = 'Email,Tilmeldt';
+    const rows = currentSubscribers.map((s: any) =>
+      `${s.email},${new Date(s.subscribed_at).toLocaleDateString('da-DK')}`
+    );
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tilmeldte-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  loadSubscribers();
+
+  // --- Compose ---
+  const composeForm = document.getElementById('compose-form') as HTMLFormElement;
+  const composeMessage = document.getElementById('compose-message')!;
+
+  composeForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    composeMessage.textContent = '';
+    composeMessage.className = 'admin-message';
+
+    const subject = (composeForm.querySelector('[name="subject"]') as HTMLInputElement).value;
+    const body = (composeForm.querySelector('[name="body"]') as HTMLTextAreaElement).value;
+    const recipient_filter = (composeForm.querySelector('[name="recipient_filter"]') as HTMLSelectElement).value;
+
+    try {
+      const res = await fetch('/api/admin/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject, body, recipient_filter }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        composeMessage.textContent = 'Kladde gemt!';
+        composeMessage.classList.add('admin-message--success');
+        composeForm.reset();
+        loadDrafts();
+      } else {
+        composeMessage.textContent = data.error || 'Fejl.';
+        composeMessage.classList.add('admin-message--error');
+      }
+    } catch {
+      composeMessage.textContent = 'Kunne ikke gemme kladde.';
+      composeMessage.classList.add('admin-message--error');
+    }
+  });
+
+  // --- Drafts ---
+  const draftsList = document.getElementById('drafts-list')!;
+
+  async function loadDrafts() {
+    try {
+      const res = await fetch('/api/admin/drafts');
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const drafts = data.drafts;
+
+      if (drafts.length === 0) {
+        draftsList.innerHTML = '<p class="text-muted">Ingen kladder.</p>';
+        return;
+      }
+
+      draftsList.innerHTML = drafts.map((d: any) => `
+        <div class="card draft-card">
+          <div class="draft-header">
+            <strong>${escapeHtml(d.subject)}</strong>
+            <span class="text-muted">${d.recipient_filter === 'all' ? 'Alle' : d.recipient_filter === 'members' ? 'Medlemmer' : 'Ikke-medlemmer'}</span>
+          </div>
+          <p class="draft-body">${escapeHtml(d.body).substring(0, 200)}${d.body.length > 200 ? '...' : ''}</p>
+          <div class="draft-footer">
+            <span class="text-muted">${new Date(d.created_at).toLocaleDateString('da-DK')}</span>
+            <button class="btn-delete-draft" data-id="${d.id}">Slet</button>
+          </div>
+        </div>
+      `).join('');
+
+      draftsList.querySelectorAll('.btn-delete-draft').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = (btn as HTMLElement).dataset.id;
+          if (!confirm('Slet denne kladde?')) return;
+          await fetch('/api/admin/drafts', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: Number(id) }),
+          });
+          loadDrafts();
+        });
+      });
+    } catch {
+      draftsList.innerHTML = '<p class="admin-message--error">Kunne ikke indlæse kladder.</p>';
+    }
+  }
+
+  loadDrafts();
+
+  // --- Utility ---
+  function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  } // end if (adminPanel)
+</script>
+
+<style>
+  .admin-container {
+    padding: var(--space-md);
+  }
+
+  .admin-container h1 {
+    margin-bottom: var(--space-lg);
+  }
+
+  /* Login */
+  .admin-login {
+    max-width: 400px;
+    padding: var(--space-lg);
+  }
+
+  .admin-login h2 {
+    margin-bottom: var(--space-md);
+  }
+
+  .admin-login label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    font-weight: 600;
+  }
+
+  /* Form elements */
+  .form-input {
+    display: block;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 2px solid var(--color-border);
+    border-radius: 6px;
+    font-size: var(--text-sm);
+    font-family: var(--font-sans);
+    background: var(--color-white);
+    color: var(--color-text);
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+  }
+
+  .form-select {
+    width: auto;
+    cursor: pointer;
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  /* Tabs */
+  .admin-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--color-border);
+    margin-bottom: var(--space-md);
+  }
+
+  .admin-tab {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-text-muted);
+    font-family: var(--font-sans);
+    transition: all 0.2s;
+  }
+
+  .admin-tab:hover:not(.disabled) {
+    color: var(--color-accent);
+  }
+
+  .admin-tab.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .admin-tab.active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .admin-tab-content {
+    display: none;
+  }
+
+  .admin-tab-content.active {
+    display: block;
+  }
+
+  /* Toolbar */
+  .admin-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+  }
+
+  .admin-toolbar-actions {
+    display: flex;
+    gap: var(--space-xs);
+  }
+
+  .btn--sm {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    min-height: auto;
+    min-width: auto;
+  }
+
+  /* Table */
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+  }
+
+  .admin-table th {
+    font-weight: 600;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .admin-table tr:hover {
+    background: rgba(180, 83, 9, 0.03);
+  }
+
+  .btn-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #b91c1c;
+    font-size: 1.4rem;
+    line-height: 1;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  .btn-delete:hover {
+    background: rgba(185, 28, 28, 0.1);
+  }
+
+  /* Compose form labels */
+  .admin-tab-content label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    font-weight: 600;
+  }
+
+  /* Drafts */
+  .draft-card {
+    padding: var(--space-md);
+    margin-bottom: var(--space-sm);
+  }
+
+  .draft-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xs);
+  }
+
+  .draft-body {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .draft-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-delete-draft {
+    background: none;
+    border: 1px solid #b91c1c;
+    color: #b91c1c;
+    cursor: pointer;
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+
+  .btn-delete-draft:hover {
+    background: rgba(185, 28, 28, 0.1);
+  }
+
+  /* Messages */
+  .admin-message {
+    margin-top: var(--space-sm);
+    font-size: var(--text-sm);
+  }
+
+  .admin-message--success {
+    color: var(--color-olive);
+  }
+
+  .admin-message--error {
+    color: #b91c1c;
+  }
+
+  @media (max-width: 768px) {
+    .admin-table-wrap {
+      overflow-x: auto;
+    }
+
+    .admin-tab {
+      padding: 0.6rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+</style>

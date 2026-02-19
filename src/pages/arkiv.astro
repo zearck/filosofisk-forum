@@ -1,0 +1,119 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LectureCard from '../components/LectureCard.astro';
+import { getCollection } from 'astro:content';
+
+const allForedrag = await getCollection('foredrag');
+const sorted = allForedrag.sort((a, b) => {
+  return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+});
+---
+
+<BaseLayout title="Arkiv" description="Arkiv over alle foredrag afholdt af Filosofisk Forum.">
+  <div class="container">
+    <div class="page-header">
+      <h1>Foredragsarkiv</h1>
+      <p>Oversigt over alle afholdte foredrag</p>
+    </div>
+
+    <div class="archive-controls">
+      <label for="search" class="sr-only">Søg i foredrag</label>
+      <input
+        type="search"
+        id="search"
+        class="search-input"
+        placeholder="Søg efter titel, foredragsholder..."
+        aria-label="Søg i foredrag"
+      />
+    </div>
+
+    <div class="lecture-count">
+      <p>{sorted.length} foredrag i arkivet</p>
+    </div>
+
+    <div class="lecture-grid" id="lecture-grid">
+      {sorted.map(foredrag => (
+        <LectureCard
+          title={foredrag.data.title}
+          date={foredrag.data.date}
+          speaker={foredrag.data.speaker}
+          description={foredrag.data.description}
+        />
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const input = document.getElementById('search') as HTMLInputElement;
+  const grid = document.getElementById('lecture-grid');
+  const cards = grid?.querySelectorAll('.lecture-card');
+
+  input?.addEventListener('input', () => {
+    const query = input.value.toLowerCase().trim();
+    cards?.forEach(card => {
+      const text = card.textContent?.toLowerCase() || '';
+      (card as HTMLElement).style.display = text.includes(query) ? '' : 'none';
+    });
+  });
+</script>
+
+<style>
+  .archive-controls {
+    margin-bottom: var(--space-md);
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 0.85rem var(--space-sm);
+    font-size: var(--text-base);
+    font-family: var(--font-sans);
+    border: 2px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-white);
+    color: var(--color-text);
+    transition: border-color 0.2s ease;
+    min-height: 48px;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.15);
+  }
+
+  .search-input::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.7;
+  }
+
+  .lecture-count {
+    margin-bottom: var(--space-md);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .lecture-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: var(--space-md);
+    padding-bottom: var(--space-xl);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+  @media (max-width: 768px) {
+    .lecture-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

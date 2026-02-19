@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const boardMembers = [
+  { name: 'Peter Kemp', phone: null, note: 'Husket og savnet' },
+  { name: 'Benedicta Pecseli', phone: '4157 0781', note: null },
+  { name: 'Jacob Dahl Rendtorff', phone: '2961 5370', note: null },
+  { name: 'Anders Bordum', phone: '3024 3783', note: null },
+  { name: 'Emil Hageman Christensen', phone: '2713 7992', note: null },
+  { name: 'Niels Mattsson Johansen', phone: '2323 5701', note: null },
+  { name: 'Sandra Frost', phone: '3117 5389', note: null },
+  { name: 'Adam Diderichsen', phone: null, note: null },
+];
+---
+
+<BaseLayout title="Bestyrelse" description="Mød bestyrelsen i Filosofisk Forum.">
+  <div class="container">
+    <div class="page-header">
+      <h1>Bestyrelsen</h1>
+      <p>Filosofisk Forums bestyrelse</p>
+    </div>
+
+    <div class="board-list">
+      {boardMembers.map(member => (
+        <div class="board-member card">
+          <h3>{member.name}</h3>
+          {member.note && <p class="member-note">{member.note}</p>}
+          {member.phone && (
+            <p class="member-phone">
+              <a href={`tel:+45${member.phone.replace(/\s/g, '')}`}>
+                Tlf: {member.phone}
+              </a>
+            </p>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .board-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-md);
+    padding-bottom: var(--space-xl);
+  }
+
+  .board-member h3 {
+    font-family: var(--font-serif);
+    font-size: var(--text-xl);
+    margin-bottom: 0.3rem;
+  }
+
+  .member-note {
+    color: var(--color-text-muted);
+    font-style: italic;
+    font-size: var(--text-sm);
+  }
+
+  .member-phone a {
+    color: var(--color-olive);
+    text-decoration: none;
+    font-size: var(--text-sm);
+  }
+
+  .member-phone a:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+</style>

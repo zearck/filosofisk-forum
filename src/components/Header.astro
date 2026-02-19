@@ -1,0 +1,231 @@
+---
+const navItems = [
+  { href: '/', label: 'Forside' },
+  { href: '/om', label: 'Om os' },
+  { href: '/program', label: 'Program' },
+  { href: '/arkiv', label: 'Arkiv' },
+  { href: '/bestyrelse', label: 'Bestyrelse' },
+  { href: '/bliv-medlem', label: 'Bliv medlem' },
+  { href: '/kontakt', label: 'Kontakt' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="header-inner container--wide">
+    <a href="/" class="logo" aria-label="Filosofisk Forum - Forside">
+      <img src="/images/platon.png" alt="" class="logo-icon" aria-hidden="true" width="40" height="40" />
+      <span class="logo-text">Filosofisk Forum</span>
+    </a>
+
+    <button
+      class="menu-toggle"
+      aria-label="Åbn menu"
+      aria-expanded="false"
+      aria-controls="main-nav"
+    >
+      <span class="menu-icon" aria-hidden="true"></span>
+    </button>
+
+    <nav id="main-nav" class="main-nav" aria-label="Hovednavigation">
+      <ul class="nav-list" role="list">
+        {navItems.map(item => (
+          <li>
+            <a
+              href={item.href}
+              class:list={['nav-link', { active: currentPath === item.href || (item.href !== '/' && currentPath.startsWith(item.href)) }]}
+              aria-current={currentPath === item.href ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector('.menu-toggle');
+  const nav = document.querySelector('.main-nav');
+
+  toggle?.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!expanded));
+    toggle.setAttribute('aria-label', expanded ? 'Åbn menu' : 'Luk menu');
+    nav?.classList.toggle('is-open');
+  });
+
+  // Close menu when clicking a link
+  nav?.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      toggle?.setAttribute('aria-expanded', 'false');
+      toggle?.setAttribute('aria-label', 'Åbn menu');
+      nav?.classList.remove('is-open');
+    });
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--color-text);
+    flex-shrink: 0;
+  }
+
+  .logo:hover, .logo:focus {
+    color: var(--color-accent);
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .logo-text {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .nav-list {
+    display: flex;
+    gap: 0;
+    list-style: none;
+    align-items: center;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    text-decoration: none;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 450;
+    border-radius: 6px;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .nav-link:hover,
+  .nav-link:focus {
+    color: var(--color-text);
+  }
+
+  .nav-link.active {
+    color: var(--color-accent);
+    font-weight: 550;
+  }
+
+  /* Hamburger */
+  .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 12px;
+    min-height: 48px;
+    min-width: 48px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .menu-icon,
+  .menu-icon::before,
+  .menu-icon::after {
+    display: block;
+    width: 22px;
+    height: 1.5px;
+    background: var(--color-text);
+    border-radius: 1px;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .menu-icon::before,
+  .menu-icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+
+  .menu-icon::before { top: -6px; }
+  .menu-icon::after { top: 6px; }
+
+  /* Hamburger open state */
+  .menu-toggle[aria-expanded="true"] .menu-icon {
+    background: transparent;
+  }
+
+  .menu-toggle[aria-expanded="true"] .menu-icon::before {
+    top: 0;
+    transform: rotate(45deg);
+  }
+
+  .menu-toggle[aria-expanded="true"] .menu-icon::after {
+    top: 0;
+    transform: rotate(-45deg);
+  }
+
+  @media (max-width: 900px) {
+    .menu-toggle {
+      display: flex;
+    }
+
+    .main-nav {
+      display: none;
+      position: absolute;
+      top: var(--header-height);
+      left: 0;
+      right: 0;
+      background: var(--color-bg);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-sm) var(--space-md);
+      box-shadow: 0 4px 16px rgba(44, 24, 16, 0.08);
+    }
+
+    .main-nav.is-open {
+      display: block;
+    }
+
+    .nav-list {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .nav-link {
+      padding: 0.75rem var(--space-sm);
+      font-size: var(--text-base);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .nav-link:last-child {
+      border-bottom: none;
+    }
+  }
+</style>

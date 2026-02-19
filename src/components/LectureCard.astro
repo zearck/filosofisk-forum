@@ -1,0 +1,60 @@
+---
+interface Props {
+  title: string;
+  date: string;
+  speaker: string;
+  description?: string;
+}
+
+const { title, date, speaker, description } = Astro.props;
+
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('da-DK', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+---
+
+<article class="lecture-card card">
+  <div class="lecture-date">
+    <time datetime={date}>{formatDate(date)}</time>
+  </div>
+  <h3 class="lecture-title">{title}</h3>
+  <p class="lecture-speaker">{speaker}</p>
+  {description && (
+    <p class="lecture-desc">{description.length > 200 ? description.substring(0, 200) + '…' : description}</p>
+  )}
+</article>
+
+<style>
+  .lecture-card {
+    padding: var(--space-md) var(--space-md) var(--space-md);
+  }
+
+  .lecture-date {
+    font-size: var(--text-sm);
+    color: var(--color-olive);
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+  }
+
+  .lecture-title {
+    font-family: var(--font-serif);
+    font-size: var(--text-xl);
+    margin-bottom: 0.4rem;
+    line-height: 1.3;
+  }
+
+  .lecture-speaker {
+    color: var(--color-accent);
+    font-weight: 500;
+    margin-bottom: var(--space-xs);
+    font-size: var(--text-sm);
+  }
+
+  .lecture-desc {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+</style>

@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Bliv medlem" description="Bliv medlem af Filosofisk Forum og støt foreningen.">
+  <div class="container">
+    <div class="page-header">
+      <h1>Bliv medlem</h1>
+      <p>Støt Filosofisk Forum ved at blive medlem</p>
+    </div>
+
+    <div class="content">
+      <p>
+        Du kan blive medlem af Filosofisk Forum. Det er gratis at deltage i foredrag –
+        men du kan blive medlem af Filosofisk Forum, hvorved du årligt støtter
+        foreningen økonomisk.
+      </p>
+
+      <div class="pricing-grid mt-lg">
+        <div class="pricing-card card">
+          <h3>Studerende, arbejdsløse og pensionister</h3>
+          <div class="price">100 kr.</div>
+          <p>pr. år</p>
+        </div>
+        <div class="pricing-card card">
+          <h3>Medlemmer i arbejde</h3>
+          <div class="price">200 kr.</div>
+          <p>pr. år</p>
+        </div>
+      </div>
+
+      <hr class="meander-line" />
+
+      <h2>Betaling</h2>
+      <div class="payment-info card">
+        <p><strong>Giro:</strong> (+01) 113-5600</p>
+        <p>Husk at angive dit navn ved indbetaling.</p>
+      </div>
+
+      <!-- TODO: Stripe-integration kan tilføjes her i fremtiden.
+           Implementer en betalingsknap med Stripe Checkout for
+           online medlemsbetaling. Overvej at bruge Astro SSR mode
+           til at håndtere Stripe webhooks og bekræftelse. -->
+
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .content {
+    padding-bottom: var(--space-xl);
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-md);
+  }
+
+  .pricing-card {
+    text-align: center;
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .pricing-card h3 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-sm);
+  }
+
+  .price {
+    font-family: var(--font-serif);
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--color-accent);
+    margin-bottom: 0.25rem;
+  }
+
+  .pricing-card p {
+    color: var(--color-text-muted);
+    margin-bottom: 0;
+  }
+
+  .payment-info {
+    margin-top: var(--space-md);
+  }
+
+  .payment-info p {
+    margin-bottom: var(--space-xs);
+  }
+</style>

@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Kontakt" description="Kontakt Filosofisk Forum.">
+  <div class="container">
+    <div class="page-header">
+      <h1>Kontakt</h1>
+      <p>Vi hører gerne fra dig</p>
+    </div>
+
+    <div class="content">
+      <div class="contact-grid">
+        <div class="contact-card card">
+          <h3>Email</h3>
+          <p>
+            <a href="mailto:filosofisk-forum@filosofisk-forum.dk">
+              filosofisk-forum@filosofisk-forum.dk
+            </a>
+          </p>
+        </div>
+
+        <div class="contact-card card">
+          <h3>Postadresse</h3>
+          <p>
+            Benedicta Pecseli<br />
+            Søndermarksvej 2A<br />
+            6200 Aabenraa
+          </p>
+        </div>
+
+        <div class="contact-card card">
+          <h3>Foredrags-sted</h3>
+          <p>
+            Trinitatis Sognehus<br />
+            Pilestræde 67<br />
+            København K
+          </p>
+        </div>
+
+        <div class="contact-card card">
+          <h3>Alternativ adresse</h3>
+          <p>
+            Filosofisk Forum<br />
+            c/o Center for Etik og Ret<br />
+            Institut for Uddannelse og Pædagogik<br />
+            Aarhus Universitet, Campus Emdrup<br />
+            Tuborgvej 164<br />
+            2400 København NV
+          </p>
+        </div>
+      </div>
+
+      <hr class="meander-line" />
+
+      <h2>Bestyrelsen</h2>
+      <p>
+        Du kan også kontakte <a href="/bestyrelse">bestyrelsen</a> direkte via telefon.
+      </p>
+
+      <hr class="meander-line" />
+
+      <p class="text-muted">
+        Webmaster: Mogens Grosen Nielsen
+      </p>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .content {
+    padding-bottom: var(--space-xl);
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-md);
+  }
+
+  .contact-card h3 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-xs);
+    color: var(--color-accent);
+  }
+
+  .contact-card p {
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+</style>

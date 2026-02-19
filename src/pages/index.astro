@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import { getNextLecture, formatDate } from '../data/lectures';
+
+const next = getNextLecture();
+---
+
+<BaseLayout title="Forside">
+  <Hero
+    title="Filosofisk Forum"
+    subtitle="Filosofisk Forum er en forening og frivillig sammenslutning af forskere, studerende og undervisere. Vores formål er at diskutere samfundsforhold i relation til filosofiens indsigt. Visionen med Filosofisk Forum er at skabe og informere en filosofisk offentlighed i Danmark. Vi afholder foredragsrækker hvert forår og efterår. Hver sommer arrangerer vi derudover et højskoleophold, en filosofisk sommerskole hvor du kan møde ligesindede. Programmet annonceres her på siden. Vi er bestyrelsen af Filosofisk Forum."
+  >
+    <a href="/program" class="btn btn--primary">Se aktuelt program</a>
+    <a href="/bliv-medlem" class="btn btn--outline">Bliv medlem</a>
+  </Hero>
+
+  <section class="section section--alt next-section">
+    <div class="container">
+      <h2 class="stagger stagger-1">Næste foredrag</h2>
+      {next ? (
+        <div class="next-lecture">
+          <p class="next-lecture-date stagger stagger-2">{formatDate(next.date)}, kl. {next.time}</p>
+          <p class="next-lecture-speaker stagger stagger-2">{next.speaker}</p>
+          <h3 class="next-lecture-title stagger stagger-3">{next.title}</h3>
+          <p class="next-lecture-description stagger stagger-4">{next.description}</p>
+          <p class="mt-sm stagger stagger-4">
+            <strong>Sted:</strong> Trinitatis Sognehus, Pilestræde 67, København K. <strong>Fri entré.</strong>
+          </p>
+        </div>
+      ) : (
+        <p class="stagger stagger-2">Der er ingen planlagte foredrag i øjeblikket. Hold øje med siden for nyt program.</p>
+      )}
+      <p class="mt-md stagger stagger-5">
+        <a href="/program" class="btn btn--outline">Se hele programmet</a>
+      </p>
+    </div>
+  </section>
+
+  <div class="section-divider--reverse"></div>
+
+</BaseLayout>
+
+<script>
+  const section = document.querySelector('.next-section');
+  if (section) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          section.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    observer.observe(section);
+  }
+</script>
+
+<style>
+  .next-section .stagger {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .next-section.is-visible .stagger {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .next-section.is-visible .stagger-1 { transition-delay: 0ms; }
+  .next-section.is-visible .stagger-2 { transition-delay: 150ms; }
+  .next-section.is-visible .stagger-3 { transition-delay: 300ms; }
+  .next-section.is-visible .stagger-4 { transition-delay: 450ms; }
+  .next-section.is-visible .stagger-5 { transition-delay: 600ms; }
+
+  .next-lecture-date {
+    font-weight: 600;
+    color: var(--color-accent);
+    margin-bottom: var(--space-xs);
+  }
+
+  .next-lecture-speaker {
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+  }
+
+  .next-lecture-title {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-sm);
+  }
+
+  .next-lecture-description {
+    line-height: 1.7;
+    margin-bottom: var(--space-sm);
+  }
+</style>

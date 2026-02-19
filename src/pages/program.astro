@@ -1,0 +1,124 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Aktuelt program" description="Se det aktuelle program for Filosofisk Forums arrangementer.">
+  <div class="container">
+    <div class="page-header">
+      <h1>Aktuelt program</h1>
+      <p>Foredragsrækken for indeværende sæson</p>
+    </div>
+
+    <div class="content">
+      <p>
+        Dette er det aktuelle program for Filosofisk Forums arrangementer.
+        Du kan downloade det aktuelle program ved at klikke på linket herunder.
+        Programmet er i PDF-format.
+      </p>
+
+      <div class="program-download mt-lg text-center">
+        <a
+          href="https://www.filosofisk-forum.dk/wp-content/uploads/2026/02/ff-PROGRAM-FOR-FEBRUAR-TIL-MAJ-2026.pdf"
+          class="btn btn--primary"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Download program (PDF)
+        </a>
+      </div>
+
+      <hr class="meander-line" />
+
+      <h2>Praktisk information</h2>
+      <div class="info-box card">
+        <p><strong>Sted:</strong> Trinitatis Sognehus, Pilestræde 67, København K</p>
+        <p><strong>Tidspunkt:</strong> Kl. 19:30</p>
+        <p><strong>Pris:</strong> Gratis — fri entré til alle foredrag</p>
+      </div>
+
+      <hr class="meander-line" />
+
+      <h2>Rutevejledning</h2>
+      <div class="map-container">
+        <iframe
+          src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=Pilestræde+67,+1112+København&zoom=16"
+          width="100%"
+          height="350"
+          style="border:0; border-radius: 8px;"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Kort over Trinitatis Sognehus"
+        ></iframe>
+      </div>
+      <div class="map-links">
+        <a href="https://www.google.com/maps/place/Trinitatis+Kirke,+Pilestræde+67,+København" target="_blank" rel="noopener noreferrer" class="btn btn--outline">Vis større kort</a>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=Trinitatis+Kirke,+Pilestræde+67,+København" target="_blank" rel="noopener noreferrer" class="btn btn--outline">Find vej</a>
+      </div>
+
+      <div class="info-box card">
+        <p>Vi afholder foredragsrækker hvert forår og efterår. Hver sommer arrangerer vi derudover et højskoleophold på Løgumkloster Højskole. Følg med på <a href="https://www.logumklosterhojskole.dk/kurser/2026/de-store-filosoffer-myter" target="_blank" rel="noopener noreferrer">logumklosterhojskole.dk</a></p>
+      </div>
+
+      <p class="mt-lg archive-link">
+        Se også vores <a href="/arkiv">arkiv over tidligere foredrag</a>.
+      </p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const el = document.querySelector('.archive-link');
+  if (el) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          el.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    observer.observe(el);
+  }
+</script>
+
+<style>
+  .content {
+    padding-bottom: var(--space-xl);
+  }
+
+  .info-box {
+    margin-top: var(--space-md);
+  }
+
+  .info-box p {
+    margin-bottom: var(--space-xs);
+  }
+
+  .info-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  .map-container {
+    margin-top: var(--space-md);
+  }
+
+  .map-links {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+    justify-content: center;
+  }
+
+  .archive-link {
+    text-align: center;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .archive-link.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>

@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import NewsletterSignup from '../components/NewsletterSignup.astro';
+---
+
+<BaseLayout title="Nyhedsbrev" description="Tilmeld dig Filosofisk Forums nyhedsbrev og hold dig opdateret om kommende foredrag og arrangementer.">
+  <Hero title="Nyhedsbrev" subtitle="Hold dig opdateret om foredrag og arrangementer i Filosofisk Forum." />
+
+  <section class="section">
+    <div class="container">
+      <NewsletterSignup />
+      <p class="mt-lg text-muted" style="font-size: var(--text-sm);">
+        Vi sender kun e-mails om kommende foredrag og vigtige nyheder. Du kan til enhver tid framelde dig.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
