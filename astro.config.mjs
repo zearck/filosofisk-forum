@@ -4,7 +4,7 @@ import node from '@astrojs/node';
 
 export default defineConfig({
   output: 'static',
-  site: 'https://filosofisk-forum.dk',
+  site: 'https://filosofiskforum.dk',
   adapter: node({
     mode: 'standalone',
   }),
