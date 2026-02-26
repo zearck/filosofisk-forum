@@ -6,7 +6,7 @@ let db: Database.Database | null = null;
 function getDb(): Database.Database {
   if (db) return db;
 
-  const dbPath = import.meta.env.DATABASE_PATH || 'database/filosofisk-forum.db';
+  const dbPath = process.env.DATABASE_PATH || 'database/filosofisk-forum.db';
   const resolvedPath = path.resolve(dbPath);
 
   db = new Database(resolvedPath);
