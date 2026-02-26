@@ -3,7 +3,7 @@ const COOKIE_NAME = 'admin_session';
 export function isAuthenticated(request: Request): boolean {
   const cookie = request.headers.get('cookie') || '';
   const token = parseCookie(cookie, COOKIE_NAME);
-  const password = import.meta.env.ADMIN_PASSWORD;
+  const password = process.env.ADMIN_PASSWORD;
   if (!password) return false;
   return token === hashPassword(password);
 }
@@ -18,7 +18,7 @@ export function clearSessionCookie(): string {
 }
 
 export function checkPassword(input: string): boolean {
-  const password = import.meta.env.ADMIN_PASSWORD;
+  const password = process.env.ADMIN_PASSWORD;
   if (!password) return false;
   return input === password;
 }
