@@ -127,7 +127,9 @@ const currentPath = Astro.url.pathname;
   }
 
   .main-nav {
-    flex: 1;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     justify-content: center;
   }
@@ -163,6 +165,7 @@ const currentPath = Astro.url.pathname;
 
   .facebook-link {
     flex-shrink: 0;
+    margin-left: auto;
     color: var(--color-text-muted);
     transition: color 0.2s ease;
     z-index: 1;
