@@ -105,7 +105,6 @@ const currentPath = Astro.url.pathname;
     text-decoration: none;
     color: var(--color-text);
     flex-shrink: 0;
-    margin-left: 16rem;
     z-index: 1;
   }
 
@@ -128,9 +127,7 @@ const currentPath = Astro.url.pathname;
   }
 
   .main-nav {
-    position: absolute;
-    left: 0;
-    right: 0;
+    flex: 1;
     display: flex;
     justify-content: center;
   }
@@ -165,8 +162,7 @@ const currentPath = Astro.url.pathname;
   }
 
   .facebook-link {
-    margin-left: auto;
-    margin-right: 26rem;
+    flex-shrink: 0;
     color: var(--color-text-muted);
     transition: color 0.2s ease;
     z-index: 1;
@@ -230,8 +226,13 @@ const currentPath = Astro.url.pathname;
   }
 
   @media (max-width: 900px) {
+    .header-inner {
+      position: relative;
+    }
+
     .menu-toggle {
       display: flex;
+      margin-left: auto;
     }
 
     .main-nav {
@@ -240,6 +241,7 @@ const currentPath = Astro.url.pathname;
       top: var(--header-height);
       left: 0;
       right: 0;
+      flex: unset;
       background: var(--color-bg);
       border-bottom: 1px solid var(--color-border);
       padding: var(--space-sm) var(--space-md);
@@ -266,7 +268,7 @@ const currentPath = Astro.url.pathname;
     }
 
     .facebook-link {
-      margin-right: 0;
+      margin-left: var(--space-sm);
     }
   }
 </style>
